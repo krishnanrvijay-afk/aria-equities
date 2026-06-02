@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import Scanner from "./Scanner.jsx";
 
 const DEFAULT_SYMBOLS = ["AAPL","MSFT","NVDA","TSLA","AMZN","META","GOOGL","SPY","QQQ","AMD"];
 const WS_URL = "wss://stream.data.alpaca.markets/v2/iex";
@@ -267,6 +268,7 @@ export default function App() {
     setSymbols(s);
   };
 
+  const [activeTab, setActiveTab] = useState("terminal"); // terminal | scanner
   const isLive   = status==="live";
   const dotCol   = {disconnected:C.textFar,connecting:"#f59e0b",auth:"#f59e0b",live:C.green,error:C.red}[status]||C.textFar;
   const statusLbl= {disconnected:"OFFLINE",connecting:"CONNECTING",auth:"AUTHENTICATING",live:"LIVE",error:"ERROR"}[status];
@@ -305,6 +307,14 @@ export default function App() {
             <span style={{color:C.green}}>▲{upCnt}</span>{" / "}<span style={{color:C.red}}>▼{downCnt}</span>
           </span>
         )}
+        {/* Tab switcher */}
+        <div style={{display:"flex",gap:2,marginLeft:16}}>
+          {[["terminal","LIVE TERMINAL"],["scanner","OR SCANNER"]].map(([id,label])=>(
+            <button key={id} onClick={()=>setActiveTab(id)} style={{background:"none",border:"none",borderBottom:`2px solid ${activeTab===id?C.green:"transparent"}`,color:activeTab===id?C.green:C.textMid,cursor:"pointer",fontFamily:"monospace",fontSize:10,fontWeight:600,letterSpacing:"0.08em",padding:"2px 10px 4px",transition:"color 0.2s"}}>
+              {label}
+            </button>
+          ))}
+        </div>
         <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:8}}>
           <div style={{width:7,height:7,borderRadius:"50%",background:dotCol,boxShadow:"0 0 8px "+dotCol}}/>
           <span style={{fontSize:10,color:dotCol,letterSpacing:"0.1em"}}>{statusLbl}</span>
@@ -312,8 +322,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* Config */}
-      <div style={{background:C.bgPanel,borderBottom:"1px solid "+C.border,padding:"7px 16px",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
+      {/* Config — only shown on terminal tab */}
+      {activeTab==="terminal" && <div style={{background:C.bgPanel,borderBottom:"1px solid "+C.border,padding:"7px 16px",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
         <input style={{...iStyle,width:155}} placeholder="API KEY ID"    value={apiKey}    onChange={e=>setApiKey(e.target.value)}    type="password" spellCheck={false}/>
         <input style={{...iStyle,width:155}} placeholder="SECRET KEY"    value={apiSecret} onChange={e=>setApiSecret(e.target.value)} type="password" spellCheck={false}/>
         <div style={{width:1,height:20,background:C.border}}/>
@@ -330,8 +340,13 @@ export default function App() {
           {showChart?"HIDE CHART":"SHOW CHART"}
         </button>
         <input style={{...iStyle,width:88}} placeholder="FILTER..." value={filter} onChange={e=>setFilter(e.target.value)}/>
-      </div>
+      </div>}
 
+      {/* Scanner tab */}
+      {activeTab==="scanner" && <Scanner apiKey={apiKey} apiSecret={apiSecret}/>}
+
+      {/* Terminal tab body */}
+      {activeTab==="terminal" && <>
       {/* Notice */}
       {!isLive && (
         <div style={{padding:"4px 16px",background:"#040a06",borderBottom:"1px solid #0a1e0d",fontSize:9,color:C.textFar,flexShrink:0}}>
@@ -419,12 +434,13 @@ export default function App() {
           </div>
         </div>
       </div>
+      </>}
 
-      {/* Footer */}
-      <div style={{borderTop:"1px solid "+C.border,padding:"4px 16px",display:"flex",justifyContent:"space-between",gap:4,flexShrink:0}}>
+      {/* Footer — terminal tab only */}
+      {activeTab==="terminal" && <div style={{borderTop:"1px solid "+C.border,padding:"4px 16px",display:"flex",justifyContent:"space-between",gap:4,flexShrink:0}}>
         <span style={{fontSize:9,color:C.textMin}}>{rows.length} SYMBOLS · IEX L1 · CLICK ROW TO CHART · NOT FOR TRADING</span>
         <span style={{fontSize:9,color:C.textMin}}>ARIA TERMINAL · EQUITIES</span>
-      </div>
+      </div>}
     </div>
   );
 }
