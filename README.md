@@ -1,6 +1,5 @@
 # aria-equities
 equity screen using Alpaca Markets
-
 Deploy to Railway via GitHub
 	1.	Push this repo to GitHub
 	2.	Go to railway.app → New Project → Deploy from GitHub repo
