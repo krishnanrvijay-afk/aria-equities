@@ -162,8 +162,8 @@ function Spark({ points, color }) {
 
 // ── Main terminal ─────────────────────────────────────────────────────────────
 export default function App() {
-  const [apiKey,    setApiKey]    = useState("");
-  const [apiSecret, setApiSecret] = useState("");
+  const [apiKey,    setApiKey]    = useState(import.meta.env.VITE_ALPACA_KEY    || "");
+  const [apiSecret, setApiSecret] = useState(import.meta.env.VITE_ALPACA_SECRET || "");
   const [symbols,   setSymbols]   = useState(DEFAULT_SYMBOLS);
   const [symInput,  setSymInput]  = useState(DEFAULT_SYMBOLS.join(","));
   const [status,    setStatus]    = useState("disconnected");
@@ -324,8 +324,11 @@ export default function App() {
 
       {/* Config — only shown on terminal tab */}
       {activeTab==="terminal" && <div style={{background:C.bgPanel,borderBottom:"1px solid "+C.border,padding:"7px 16px",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
-        <input style={{...iStyle,width:155}} placeholder="API KEY ID"    value={apiKey}    onChange={e=>setApiKey(e.target.value)}    type="password" spellCheck={false}/>
-        <input style={{...iStyle,width:155}} placeholder="SECRET KEY"    value={apiSecret} onChange={e=>setApiSecret(e.target.value)} type="password" spellCheck={false}/>
+        <input style={{...iStyle,width:155,opacity:import.meta.env.VITE_ALPACA_KEY?0.5:1}} placeholder="API KEY ID"    value={apiKey}    onChange={e=>setApiKey(e.target.value)}    type="password" spellCheck={false}/>
+        <input style={{...iStyle,width:155,opacity:import.meta.env.VITE_ALPACA_SECRET?0.5:1}} placeholder="SECRET KEY"    value={apiSecret} onChange={e=>setApiSecret(e.target.value)} type="password" spellCheck={false}/>
+        {(import.meta.env.VITE_ALPACA_KEY||import.meta.env.VITE_ALPACA_SECRET) && (
+          <span style={{fontSize:9,color:C.green3,letterSpacing:"0.06em"}}>🔒 ENV</span>
+        )}
         <div style={{width:1,height:20,background:C.border}}/>
         <input style={{...iStyle,width:280}} placeholder="SYMBOLS comma-separated (max 30)" value={symInput} onChange={e=>setSymInput(e.target.value)}/>
         <button style={bStyle} onClick={applySymbols}>APPLY</button>
